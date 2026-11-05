@@ -426,7 +426,7 @@ async function errorFromResponse(res: Response): Promise<ApiError> {
   return new ApiError(detail, res.status, code);
 }
 
-async function request<T>(path: string, options?: RequestInit, timeoutMs?: number): Promise<T> {
+export async function request<T>(path: string, options?: RequestInit, timeoutMs?: number): Promise<T> {
   const { headers, ...rest } = options ?? {};
   const mergedHeaders: Record<string, string> = { "Content-Type": "application/json", ...authHeaders() };
   if (headers) {
@@ -1081,7 +1081,21 @@ export interface SourceOrderUpdate {
   order?: string[] | null;
 }
 
+export const gildataFeatures = [
+  "fin_query",
+  "stock_selection",
+  "symbol_search",
+  "shannon",
+  "market_quotes",
+  "fund_nav",
+  "macro_series",
+  "announcements",
+  "broker_reports",
+] as const;
+export type GildataFeature = typeof gildataFeatures[number];
+
 export interface DataSourceSettings {
+  gildata_features?: GildataFeature[];
   tushare_token_configured: boolean;
   tushare_token_hint?: string | null;
   gildata_token_configured: boolean;
@@ -1094,6 +1108,7 @@ export interface DataSourceSettings {
 }
 
 export interface UpdateDataSourceSettingsRequest {
+  gildata_features?: GildataFeature[];
   tushare_token?: string;
   clear_tushare_token?: boolean;
   gildata_token?: string;
@@ -1295,8 +1310,7 @@ export interface ValidationData {
     n_trades: number;
     sharpe_samples?: number[];
     equity_paths?: MonteCarloEquityPaths;
-    error?: string;
-  };
+  } | { error: string };
   bootstrap?: {
     observed_sharpe: number;
     ci_lower: number;
@@ -1406,7 +1420,7 @@ export interface FactorReportPayload {
 
 export interface AttributionBenchmarkInfo {
   ticker: string | null;
-  mode: "auto_equal_weight" | "explicit";
+  mode: "auto_equal_weight" | "auto_market" | "explicit";
 }
 
 export interface AttributionRollingPoint {

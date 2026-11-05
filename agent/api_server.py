@@ -255,8 +255,6 @@ from src.api.channels_routes import register_channels_routes  # noqa: E402
 register_channels_routes(app)
 from src.api.channels_config_routes import register_channels_config_routes  # noqa: E402
 register_channels_config_routes(app)
-from src.api.qveris_routes import qveris_router  # noqa: E402  # QVERIS-INTEGRATION
-app.include_router(qveris_router)  # QVERIS-INTEGRATION
 
 from src.api.channels_routes import (  # noqa: F401, E402
     ChannelPairingCommandRequest,
@@ -318,6 +316,9 @@ register_alpha_routes(app)
 # --- Options analysis ---
 from src.api.options_routes import register_options_routes  # noqa: E402
 register_options_routes(app)
+
+from src.api.shannon_routes import register_shannon_routes  # noqa: E402
+register_shannon_routes(app, require_auth)
 
 # --- Auth helpers (SSE tickets) ---
 from src.api.auth_routes import register_auth_routes  # noqa: E402
