@@ -3,6 +3,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   buildPayoffRequest,
+  MAX_OPTION_LEGS,
   roundToNiceStrike,
   STRATEGY_PRESETS,
   type OptionLeg,
@@ -40,6 +41,7 @@ export function StrategyBuilder({
   };
 
   const addLeg = () => {
+    if (legs.length >= MAX_OPTION_LEGS) return;
     onLegsChange([
       ...legs,
       {
@@ -126,7 +128,7 @@ export function StrategyBuilder({
                     type="number"
                     step={1}
                     value={Number.isFinite(leg.qty) ? leg.qty : ""}
-                    onChange={(e) => updateLeg(i, { qty: parseInt(e.target.value, 10) })}
+                    onChange={(e) => updateLeg(i, { qty: e.target.valueAsNumber })}
                     className={cn(INPUT_CLS, "min-w-16 tabular-nums")}
                     aria-label={`${t("options.builder.qty")} ${i + 1}`}
                   />
@@ -168,7 +170,9 @@ export function StrategyBuilder({
         <button
           type="button"
           onClick={addLeg}
-          className="flex items-center gap-1 rounded-md border border-dashed border-muted-foreground/40 px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:border-primary hover:text-foreground"
+          disabled={legs.length >= MAX_OPTION_LEGS}
+          title={t("options.builder.legLimit", { count: MAX_OPTION_LEGS })}
+          className="flex items-center gap-1 rounded-md border border-dashed border-muted-foreground/40 px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:border-primary hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <Plus className="h-3 w-3" />
           {t("options.builder.addLeg")}
