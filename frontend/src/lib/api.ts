@@ -589,7 +589,38 @@ export interface LabJob {
   result?: LabResult; error?: string; request?: Record<string, unknown>;
 }
 
+export interface ScanJob { id: string; state: string; total: number; completed: number; failed: number; remaining: number; retries: number; last_error: string | null }
+export interface HistoryStorage { quota_bytes: number; retention_days: number; used_bytes: number; reserved_bytes: number; path: string }
+export interface HistorySpec { codes: string[]; start_date: string; end_date: string; interval: string; source?: string }
+export interface HistoryJob { auto_resume?: number; retry_at?: number; retry_count?: number; sources?: string[]; id: string; state: string; pinned: number; error: string | null; spec?: HistorySpec; rows?: number; completed_chunks?: number; total_chunks?: number }
+export interface GatewayCapabilities { history_datasets: { markets: string[]; intervals: string[]; sources: Array<{ source: string; markets: string[]; intervals: string[] | null; requires_auth: boolean }> } }
+export interface HistoryPlan { routes?: Record<string, { market: string; candidates: string[] }>; chunks: number; estimated_max_rows: number; estimated_uncompressed_bytes: number; storage: HistoryStorage }
+
+export interface SoftwareUpdate {
+  current_version: string;
+  latest_version: string | null;
+  available: boolean;
+  method: "wheel" | "editable" | "checkout" | "vcs" | "container" | "desktop" | "desktop-manual" | "desktop-unconfigured";
+  recovery?: string;
+}
+
 export const api = {
+  dataScans: () => request<ScanJob[]>("/data/scans"),
+  createDataScan: (spec: HistorySpec) => request<ScanJob>("/data/scans", { method: "POST", body: JSON.stringify(spec) }),
+  cancelDataScan: (id: string) => request<ScanJob>(`/data/scans/${encodeURIComponent(id)}/cancel`, { method: "POST" }),
+  dataCapabilities: () => request<GatewayCapabilities>("/data/capabilities"),
+  historyStorage: () => request<HistoryStorage>("/data/history/storage"),
+  saveHistoryStorage: (quota_bytes: number, retention_days: number) => request<HistoryStorage>("/data/history/storage", { method: "PUT", body: JSON.stringify({ quota_bytes, retention_days }) }),
+  historyJobs: () => request<HistoryJob[]>("/data/history/jobs"),
+  historyJob: (id: string) => request<HistoryJob>(`/data/history/jobs/${encodeURIComponent(id)}`),
+  planHistory: (spec: HistorySpec) => request<HistoryPlan>("/data/history/plan", { method: "POST", body: JSON.stringify(spec) }),
+  createHistory: (spec: HistorySpec) => request<HistoryJob>("/data/history/jobs", { method: "POST", body: JSON.stringify(spec) }),
+  historyAction: (id: string, action: "resume" | "cancel") => request<HistoryJob>(`/data/history/jobs/${encodeURIComponent(id)}/${action}`, { method: "POST" }),
+  pinHistory: (id: string, pinned: boolean) => request<HistoryJob>(`/data/history/jobs/${encodeURIComponent(id)}/pin?pinned=${pinned}`, { method: "PUT" }),
+  deleteHistory: (id: string) => request(`/data/history/jobs/${encodeURIComponent(id)}`, { method: "DELETE" }),
+  pruneHistory: () => request<HistoryStorage>("/data/history/prune", { method: "POST" }),
+
+  checkForUpdates: () => request<SoftwareUpdate>("/api/system/update"),
   getResearchLabCatalog: () => request<LabCatalog>("/api/research-lab/catalog"),
   startResearchLabJob: (action: LabAction, body: Record<string, unknown>) =>
     request<LabJob>("/api/research-lab/jobs", { method: "POST", body: JSON.stringify({ action, request: body }) }),
@@ -1070,6 +1101,9 @@ export interface SwarmRunSummary {
 }
 
 export interface LLMProviderOption {
+  backend?: string;
+  automatic_model_list?: boolean;
+  model_options?: string[];
   name: string;
   label: string;
   api_key_env?: string | null;

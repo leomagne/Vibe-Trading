@@ -196,7 +196,7 @@ def _json_safe(value: Any) -> Any:
     return value
 
 
-def fetch_market_data(
+def _fetch_market_data_direct(
     *,
     codes: list[str],
     start_date: str,
@@ -355,7 +355,12 @@ def fetch_market_data(
                 loader = loader_cls()
                 # Weekly and monthly bars are built from daily ones (#1479).
                 loader_symbols = {symbol: normalize_crypto_symbol(symbol) for symbol in remaining}
-                fetched = loader.fetch(
+                from src.data_gateway.reads import managed_reader
+
+                fetch = loader.fetch
+                if not getattr(fetch, "gateway_public_read", False):
+                    fetch = managed_reader(fetch)
+                fetched = fetch(
                     list(dict.fromkeys(loader_symbols.values())), start_date, end_date, interval=source_interval(interval)
                 )
                 partial = {
@@ -379,10 +384,12 @@ def fetch_market_data(
                     attempt_src, remaining, exc,
                 )
                 continue
+            for symbol in remaining:
+                if symbol not in partial:
+                    failure = getattr(loader, "fetch_errors", {}).get(loader_symbols[symbol], "no_data")
+                    record([symbol], serving_source, failure)
             if not partial:
-                record(remaining, serving_source, "no_data")
                 continue
-            record([symbol for symbol in remaining if symbol not in partial], serving_source, "no_data")
             # The resolver can substitute an unavailable optional loader before
             # fetch runs. Attribute every returned symbol to its actual provider.
             serving_source = getattr(loader_cls, "name", None) or attempt_src
@@ -447,6 +454,9 @@ def fetch_market_data(
             quote_currency = frame_attrs.get("quote_currency")
             if isinstance(quote_currency, str) and quote_currency:
                 entry["quote_currency"] = quote_currency
+            for field in ("timezone", "timestamp_basis"):
+                if isinstance(frame_attrs.get(field), str) and frame_attrs[field]:
+                    entry[field] = frame_attrs[field]
             if extra_provenance:
                 entry.update(extra_provenance)
             provenance[symbol] = entry
@@ -544,12 +554,55 @@ def fetch_market_data(
             code: {"attempts": diagnostics.get(code, []), "recovery": (
                 "Use search_symbol to confirm the symbol and venue; check supported history/interval. source_unavailable means "
                 "the source needs configuration or an optional dependency; fetch_failed means "
-                "the request failed; no_data means that source returned no bars for this range. "
+                "the request failed; network_failure means a transport error; no_data means that source returned no bars for this range. "
                 "For recent intraday bars, narrow the date range or request daily bars."
             )} for code in unresolved
         }
 
     return results
+
+
+def fetch_market_data(
+    *, codes: list[str], start_date: str, end_date: str, source: str = "auto",
+    interval: str = "1D", max_rows: int = DEFAULT_MAX_ROWS,
+    loader_resolver: Callable[[str], type] = get_loader,
+    fallback_chain_provider: Callable[[str], list[str]] | None = None,
+    max_fallback_attempts: int = 5, include_provenance: bool = False,
+    as_frames: bool = False,
+) -> dict[str, Any]:
+    """Read public snapshots through the same gateway used by pages and streams.
+
+    Full analysis frames and explicit resolver integrations retain the loader
+    contract; registered loaders still acquire through the gateway source pool.
+    Gateway source workers call the raw normalizer inline, avoiding recursion.
+    """
+    from src.data_gateway import get_gateway
+    from src.data_gateway.reads import owned_source
+
+    params = dict(codes=codes, start_date=start_date, end_date=end_date,
+                  source=source, interval=interval, max_rows=max_rows)
+    default_resolver = loader_resolver is get_loader or getattr(loader_resolver, "gateway_default_resolver", False)
+    if (owned_source.get() or as_frames or max_rows == 0 or not default_resolver
+            or fallback_chain_provider is not None or max_fallback_attempts != 5):
+        return _fetch_market_data_direct(
+            **params, loader_resolver=loader_resolver,
+            fallback_chain_provider=fallback_chain_provider,
+            max_fallback_attempts=max_fallback_attempts,
+            include_provenance=include_provenance, as_frames=as_frames,
+        )
+    response = get_gateway().bars(**params, include_provenance=True)
+    payload = response.get("data")
+    if not isinstance(payload, dict):
+        payload = {"_unresolved": list(codes), "_diagnostics": {
+            code: [{"source": "gateway", "reason": "gateway_unavailable",
+                    "detail": response.get("error", "Data unavailable")}]
+            for code in codes
+        }}
+    if not include_provenance:
+        payload.pop("_provenance", None)
+    # Keep the observed reader schema: gateway status never masquerades as a
+    # symbol or as a measured market value in the grounding ledger.
+    return payload
 
 
 def fetch_market_data_json(**kwargs: Any) -> str:

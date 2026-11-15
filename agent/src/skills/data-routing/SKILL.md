@@ -1,15 +1,58 @@
 ---
 name: data-routing
 category: data-source
-description: The single ROUTER for every data need. Load this skill BEFORE any backtest, data-fetch, or research task to pick the best available source/tool, honour auth (env) requirements, and avoid ban-risk providers.
+description: Map research needs to gateway-backed tools. The runtime gateway owns source routing, bounded acquisition and caching; preserve credentials and source provenance.
 ---
 # Data Routing (Router)
 
-This is the one router. It maps (a) every registered backtest data **source** to its
-markets / auth / skill, and (b) every research **data need** to the concrete **tool**
-that serves it, its market, and the env key it requires. Source names below are a
-strict subset of `backtest.loaders.registry.VALID_SOURCES` (enforced by
-`tests/test_data_routing_sources_subset.py`).
+The runtime data gateway owns acquisition, source health, queues and cache.
+This skill maps a research need to the existing gateway-backed tool; the model
+must not recreate a separate provider-selection or retry loop.
+
+Use `get_market_data`, `get_options_chain`, and the research tools below first.
+For Python bars use `src.market_data.fetch_market_data`; for additional vendor
+fields use `src.data_gateway.skill_sources` or a `managed_reader` that creates,
+reads and materializes its SDK result inside the bounded callback. Do not return
+lazy SDK properties, iterators or network clients for later unbounded reads.
+Credential-scoped data uses uncached acquisition and keeps existing authorization.
+Large history requests use `history_data`; do not download whole years into an
+unbounded script cache. These adapters share the existing resource limits.
+
+## Generated Python and external MCP
+
+For supported data, acquire it with the available gateway-backed tool in the
+agent process and calculate from the returned artifact path. Do not refetch the
+same observations inside `bash` or `background_run`. A saved artifact is a
+returned file, not a path to guess. This keeps repeated requests in the host's
+shared cache and acquisition pool.
+
+For an additional vendor field that the existing tools do not expose:
+
+```python
+from src.data_gateway.skill_sources import yahoo_ticker
+
+# This adapter materializes the field inside bounded acquisition.
+profile = yahoo_ticker("AAPL").info
+print(profile)
+```
+
+For other SDKs, place client creation, the read, full result materialization and
+client cleanup inside a `managed_reader` function. Use `managed_async_reader`
+only for a self-contained async collector that also closes its clients. These
+are process-local limits: launching many Python children creates independent
+gateways. Do not use per-symbol subprocesses or add polling/retry/cache loops to
+get around the host's limits. Use `history_data` for large persisted downloads
+when it is available in the current tool catalog.
+
+For public-data MCP calls, first select a gateway-backed equivalent with the
+same market, instrument, interval and price basis. A busy response, timeout or
+cooldown is a recovery condition, not missing coverage: follow the returned
+recovery instructions, and do not switch to raw Python or another MCP provider
+to evade it. If a capability truly is not covered, or the user explicitly needs
+a particular provider, keep using the existing authorized MCP tool and disclose
+its source and the gateway-coverage gap. This policy does not intercept remote
+server network activity; do not claim external MCP reads share the local cache.
+Account reads and mutations retain their own authorization and order gates.
 
 ## Source Overview
 
@@ -99,18 +142,11 @@ same-market sources automatically. Only set a concrete source when the user asks
 
 ### Source priority (for OHLCV by market)
 
-- **A-shares**: tencent (never banned) > tushare (`TUSHARE_TOKEN`) >
-  baostock / akshare > eastmoney (throttled).
-- **US stocks**: stooq / yahoo > tiingo / finnhub / fmp / alphavantage (key-gated) >
-  sina / eastmoney (throttled) > yfinance.
-- **HK stocks**: tencent (never banned, daily) > eastmoney / yahoo > futu (local
-  OpenD) > akshare (Eastmoney-backed, daily only) > yfinance > tushare
-  (`TUSHARE_TOKEN`) / longbridge (key-gated).
-- **Canada (TSX/TSXV)**: yahoo > yfinance > local; use Yahoo's canonical
-  `.TO` / `.V` suffixes (for example `TD.TO`, `PNG.V`).
-- **Crypto**: okx (single exchange) > ccxt (multi-exchange).
-- **Futures / macro**: tushare > akshare.
-- **Forex / metals**: mt5 (local MetaTrader 5 terminal, Windows) > akshare. TickerAll (`source="tickerall"`) is a hosted, no-terminal alternative to the *same* broker feed (any OS) — opt-in and **explicit-only**: it never joins this automatic chain, so a user's broker credential is used only when deliberately requested.
+The current compatible chains come from `backtest.loaders.registry.FALLBACK_CHAINS`
+and the gateway's `/data/capabilities` endpoint. Use `source="auto"` unless the
+user requests an explicit source. Local network health and configured source
+order determine attempts; a fixed skill-side priority list would drift from
+main and could retry a source the gateway has already cooled down.
 
 ## Symbol Format Reference
 
@@ -126,11 +162,10 @@ same-market sources automatically. Only set a concrete source when the user asks
 
 ## Ban-Risk & Fallback Notes
 
-- **Prefer never-banned sources**: `tencent` has no observed IP ban;
-  reach for it first for A-share OHLCV when no token is set.
+- Use the gateway's compatible routes and observed network health; no source is guaranteed immune to blocking.
 - **Eastmoney rate-limits by IP and must be throttled.** Every Eastmoney-backed
   tool/loader routes through the shared per-host throttle; do not hammer it. On a
-  throttle/timeout, fall back to the same-market source above (tencent/baostock).
+  throttle/timeout, let the gateway apply its compatible fallback/cooldown policy.
 - **Sina / Yahoo also throttle by IP** — same per-host wrapper, same fallback rule.
 - **Key-gated sources need their env key** (`FINNHUB_API_KEY`,
   `ALPHAVANTAGE_API_KEY`, `TIINGO_API_KEY`, `FMP_API_KEY`, `FRED_API_KEY`,
