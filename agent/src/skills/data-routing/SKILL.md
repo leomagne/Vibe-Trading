@@ -10,6 +10,11 @@ This skill maps a research need to the existing gateway-backed tool; the model
 must not recreate a separate provider-selection or retry loop.
 
 Use `get_market_data`, `get_options_chain`, and the research tools below first.
+`get_market_data` with a task workspace exports the same returned rows to CSV
+in Python by default (`export_csv=false` disables the sidecar) with source/currency/adjustment metadata and sampling flags. Its
+`_csv_file` receipt provides the path, columns, row count and checksum. Sampling
+still applies; this is a task artifact, not another acquisition or a full-history
+download. `_data_layout` describes the saved JSON structure for custom calculations.
 For Python bars use `src.market_data.fetch_market_data`; for additional vendor
 fields use `src.data_gateway.skill_sources` or a `managed_reader` that creates,
 reads and materializes its SDK result inside the bounded callback. Do not return
@@ -54,6 +59,31 @@ its source and the gateway-coverage gap. This policy does not intercept remote
 server network activity; do not claim external MCP reads share the local cache.
 Account reads and mutations retain their own authorization and order gates.
 
+## Acquisition planning
+
+Resolve bare or ambiguous stock names once before dependent reads, including
+options. Batch canonical symbols with the same exact requested dates and
+interval. For `get_market_data`, keep `start_date`/`end_date` as the analysis
+window. When calculation history is needed, set `warmup_start_date` explicitly
+before `start_date`; the result's `_request_window` distinguishes analysis and
+acquisition dates, and returned rows/CSV include the prefix. The agent runtime
+clips accidental overlapping date padding for a single literal ISO date range
+and canonical instruments named in the current user request. Multiple windows,
+disjoint comparisons and indicator/backtest internal warmup remain separate.
+Reuse the options response's underlying price when sufficient. For a
+bounded full-day minute calculation, request `max_rows=0` on the first call;
+a sampled result's artifact also contains sampled rows. Inspect an existing
+artifact before fetching again, and combine inspection, calculation and CSV
+writing in one Python execution where possible. Preserve `quote_currency_basis`:
+`source_metadata` is declared upstream; `instrument_market_contract` is the
+project's instrument currency rule, not a vendor declaration.
+
+Japanese `.T` bars (for example `7203.T`) route through Yahoo then yfinance,
+with JPY metadata required and XTKS calendar checks. This is data coverage;
+Japanese backtest execution rules are not implemented. An unknown public venue
+returns `unsupported_market`, never an A-share fallback. Resolve the symbol or
+report the unsupported coverage instead of changing transports.
+
 ## Source Overview
 
 Every name here is a registered OHLCV/backtest source in `VALID_SOURCES`.
@@ -64,7 +94,7 @@ per-source skill.
 |--------|---------|----------------|---------|-------|
 | tushare | A-shares, funds, futures, macro | Yes (`TUSHARE_TOKEN`) | China network | tushare |
 | akshare | A-shares, US, HK, futures, macro, forex | No | Unrestricted | akshare |
-| yfinance | US, HK, Canada (TSX/TSXV) stocks, ETFs | No | Needs Yahoo access | yfinance |
+| yfinance | US, HK, Japan (.T), Canada (TSX/TSXV) stocks, ETFs | No | Needs Yahoo access | yfinance |
 | okx | Crypto (OKX exchange) | No | Needs okx.com access | okx-market |
 | nobitex | Crypto, IRT/Toman-quoted pairs (BTC-IRT, USDT-IRT — Iran market premium) | No | Needs apiv2.nobitex.ir access | data-routing (explicit `*IRT` routing only) |
 | wallex | Crypto, TMN/Toman-quoted pairs (USDT-TMN, BTC-TMN — Iran market premium) | No | Needs api.wallex.ir access | data-routing (explicit `*TMN` routing only; truly serves 1m/1h/1d) |
