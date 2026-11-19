@@ -13,6 +13,10 @@
 </p>
 
 <p align="center">
+  <a href="https://arxiv.org/abs/2611.24845"><b>📄 阅读技术报告</b>&nbsp; <img src="https://img.shields.io/badge/arXiv-2611.24845-B31B1B?style=flat&amp;logo=arxiv&amp;logoColor=white" alt="arXiv: 2611.24845"></a>
+</p>
+
+<p align="center">
   <a href="https://www.star-history.com/HKUDS/Vibe-Trading"><img src="https://api.star-history.com/badge?repo=HKUDS/Vibe-Trading&amp;type=trending" height="55" alt="Star History: GitHub Trending"/></a>
   <a href="https://trendshift.io/repositories/25527"><img src="https://trendshift.io/api/badge/trendshift/repositories/25527/daily" height="55" alt="Trendshift: daily ranking"/></a>
   <a href="https://www.star-history.com/HKUDS/Vibe-Trading"><img src="https://api.star-history.com/badge?repo=HKUDS/Vibe-Trading" height="55" alt="Star History: global star ranking"/></a>
@@ -62,17 +66,22 @@
 
 ## 📰 新闻
 
+- **2026-11-19** 📄 **技术报告发布** — 报告介绍了 Vibe-Trading 如何将研究结果追溯到数据来源和运行记录、保留研究修订历史，并将实盘交易限制在用户授权的范围内。 [Vibe-Trading: Towards Agent-Native Trading](https://arxiv.org/abs/2611.24845)
+
+- **2026-11-18** 📈 **台股回测与涨跌停修复** — 通过 Yahoo Finance 日线回测台湾证券交易所（`.TW`）和柜买中心（`.TWO`）股票。韩国、台湾和越南回测用包含额外滑点的模拟成交价检查日涨跌停，并在取数前拒绝这三个市场的盘中回测。 [#2174](https://github.com/HKUDS/Vibe-Trading/pull/2174) · [#2175](https://github.com/HKUDS/Vibe-Trading/pull/2175)
+  切换已列出的会话时复用侧栏列表。内置 AKShare 技能兼容新旧接口名。新增回归测试覆盖附件文件名、配置查找顺序，以及 MCP 市场数据摘要预览和分片重组。**已合入 `main`，将随下次 pip 版本发布。**
+
 - **2026-11-17** 📊 **组合风险明细与可复用的期权分析** — Risk X-Ray 新增观测回撤区间及各持仓带符号的波动贡献。期权实验室支持将已计算快照导出为 JSON、情景网格导出为 CSV，并对观测 IV 切片进行诊断，明确检查覆盖边界，不将结果作为无套利认证。Agent/MCP 工具可在共享价格与 IV 网格上比较多个命名期权策略。
   修复更新元数据异常与升级验证失败的处理、直连模式模型发现、附件文件名、缺失价格处理及过期会话列表响应。**已合入 `main`，随下一次 pip 发版提供。**
 
 - **2026-11-16** 🛠️ **报告、记忆检索与消息处理修复** — 影子账户报告将未测得的盈亏标为不可用，不再显示为零，缓存的 HTML/PDF 导出也保持这一口径。记忆检索自动修复旧索引，PDF OCR 部分失败时明确标注质量降级。
   修复 Signal 配对、Napcat 图片元数据异常导致文本丢失的问题；Anthropic 温度重试仅针对相关参数校验错误，AKShare 历史行情兼容新旧接口。详见 [CHANGELOG](CHANGELOG.md)。**已合入 `main`，随下一次 pip 发版提供。**
 
-- **2026-11-15** 📡 **统一数据网关与开箱即用的 CSV** — 历史行情和美股期权快照接入同一个[本地数据网关](agent/src/data_gateway/README.md)，共享数据源回退、缓存及并发限额，保留来源、币种和复权口径，并明确标注覆盖范围与数据新鲜度。
-  Agent 取行情时可直接获得 JSON 与 CSV。对于明确列出标的和单一 `YYYY-MM-DD` 日期范围的受支持请求，运行时在取数前约束日期；计算所需的预热数据单独声明，现有指标和回测的历史回看不受影响。**已合入 `main`，随下一次 pip 发版提供。**
-
 <details>
 <summary>更早的新闻</summary>
+
+- **2026-11-15** 📡 **统一数据网关与开箱即用的 CSV** — 历史行情和美股期权快照接入同一个[本地数据网关](agent/src/data_gateway/README.md)，共享数据源回退、缓存及并发限额，保留来源、币种和复权口径，并明确标注覆盖范围与数据新鲜度。
+  Agent 取行情时可直接获得 JSON 与 CSV。对于明确列出标的和单一 `YYYY-MM-DD` 日期范围的受支持请求，运行时在取数前约束日期；计算所需的预热数据单独声明，现有指标和回测的历史回看不受影响。**已合入 `main`，随下一次 pip 发版提供。**
 
 - **2026-11-14** 🔌 **统一 LLM 网关与版本检查** — Agent、CLI、API 和 Swarm 的模型服务接入统一到同一份目录与配置层。客户端配置相互隔离，原生适配器遵守显式代理设置，跨来源重定向在转发凭据或请求正文前被拦截。
   Web 设置页新增版本检查；桌面端新增签名更新的校验与恢复支持，分发前需配置更新源和发布者证书。**已合入 `main`，随下一次 pip 发版提供。**
@@ -392,6 +401,22 @@ Vibe-Trading 是 **[HKUDS](https://github.com/HKUDS)** 智能体生态的一部�
 观测切片诊断使用你输入的标的价格、连续复利无风险利率和股息率，重构欧式看涨期权模型价格，检查同一观测到期日内的垂直价差界限和蝶式凸性。结果明确列出覆盖不足和无法定价的切片，最多展示前 20 项问题，但不缩减实际检查数量，也不改变插值网格。只读 `quantlib_call` 的 `volatility.diagnose_iv_surface` 和 `POST /options/volatility-surface/diagnostics` 使用相同观测值及小数形式的利率。这是模型价格检查，不是可成交报价或交易建议。
 
 详见[模型边界与示例](agent/src/skills/options-advanced/SKILL.md#volatility-surface)。
+
+## 引用
+
+如果你在研究中使用了 Vibe-Trading，请引用这篇技术报告。
+
+```bibtex
+@misc{wu2026vibetradingagentnativetrading,
+  title         = {Vibe-Trading: Towards Agent-Native Trading},
+  author        = {Haozhe Wu and Zhonghang Li and Chao Huang},
+  year          = {2026},
+  eprint        = {2611.24845},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.AI},
+  url           = {https://arxiv.org/abs/2611.24845},
+}
+```
 
 ## 参与贡献
 

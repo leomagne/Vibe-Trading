@@ -13,6 +13,10 @@
 </p>
 
 <p align="center">
+  <a href="https://arxiv.org/abs/2611.24845"><b>📄 Read the Technical Report</b>&nbsp; <img src="https://img.shields.io/badge/arXiv-2611.24845-B31B1B?style=flat&amp;logo=arxiv&amp;logoColor=white" alt="arXiv: 2611.24845"></a>
+</p>
+
+<p align="center">
   <a href="https://www.star-history.com/HKUDS/Vibe-Trading"><img src="https://api.star-history.com/badge?repo=HKUDS/Vibe-Trading&amp;type=trending" height="55" alt="Star History: GitHub Trending"/></a>
   <a href="https://trendshift.io/repositories/25527"><img src="https://trendshift.io/api/badge/trendshift/repositories/25527/daily" height="55" alt="Trendshift: daily ranking"/></a>
   <a href="https://www.star-history.com/HKUDS/Vibe-Trading"><img src="https://api.star-history.com/badge?repo=HKUDS/Vibe-Trading" height="55" alt="Star History: global star ranking"/></a>
@@ -62,17 +66,22 @@
 
 ## 📰 News
 
+- **2026-11-19** 📄 **Technical report published** — The report describes how Vibe-Trading traces results to source data and runs, preserves research revisions, and enforces user-authorized limits on live trading. [Vibe-Trading: Towards Agent-Native Trading](https://arxiv.org/abs/2611.24845)
+
+- **2026-11-18** 📈 **Taiwan equity backtests and execution fixes** — TWSE (`.TW`) and TPEx (`.TWO`) stocks now support daily-bar backtests via Yahoo Finance. The Korea, Taiwan and Vietnam backtest engines use the simulated fill price, including extra slippage, to check daily price limits. Intraday backtest requests for these markets are rejected before fetching data. [#2174](https://github.com/HKUDS/Vibe-Trading/pull/2174) · [#2175](https://github.com/HKUDS/Vibe-Trading/pull/2175)
+  Switching between listed sessions reuses the sidebar list. The bundled AKShare skill supports current and legacy endpoint names. Regression tests cover attachment filenames, configuration lookup order, and MCP market-data previews and artifact parts. **On `main`, for the next pip release.**
+
 - **2026-11-17** 📊 **Portfolio risk details and reusable options analysis** — Risk X-Ray adds observed drawdown periods and signed per-holding volatility contributions. Options Lab exports calculated snapshots as JSON and scenario grids as CSV, and diagnoses observed IV slices with explicit coverage limits; the diagnostics do not certify an arbitrage-free surface. Agent/MCP tools compare named option strategies on shared price and IV grids.
   Fix malformed update metadata and failed upgrade verification, direct-mode model discovery, attachment filenames, missing-price handling and stale session-list responses. **On `main`, for the next pip release.**
 
 - **2026-11-16** 🛠️ **More reliable reports, memory search and messaging** — Shadow Account reports keep unmeasured P&L unavailable instead of showing zero, including cached HTML/PDF exports. Memory search repairs legacy indexes; partially failed PDF OCR is marked degraded.
   Fix Signal pairing, preserve Napcat text when image metadata is malformed, narrow Anthropic temperature retries to the relevant validation error, and support current and legacy AKShare history endpoints. See [CHANGELOG](CHANGELOG.md). **On `main`, for the next pip release.**
 
-- **2026-11-15** 📡 **Unified market-data gateway and ready-to-use CSVs** — Historical bars and US option snapshots share a [local data gateway](agent/src/data_gateway/README.md) with source fallback, shared caching and bounded concurrency. Responses preserve source, currency and price-adjustment metadata, with explicit coverage and freshness information.
-  Agent market-data reads deliver CSVs alongside JSON. For supported requests naming instruments and one explicit `YYYY-MM-DD` range, the runtime constrains dates before acquisition; calculation warmup is requested separately, and existing indicator/backtest lookbacks remain available. **On `main`, for the next pip release.**
-
 <details>
 <summary>Earlier news</summary>
+
+- **2026-11-15** 📡 **Unified market-data gateway and ready-to-use CSVs** — Historical bars and US option snapshots share a [local data gateway](agent/src/data_gateway/README.md) with source fallback, shared caching and bounded concurrency. Responses preserve source, currency and price-adjustment metadata, with explicit coverage and freshness information.
+  Agent market-data reads deliver CSVs alongside JSON. For supported requests naming instruments and one explicit `YYYY-MM-DD` range, the runtime constrains dates before acquisition; calculation warmup is requested separately, and existing indicator/backtest lookbacks remain available. **On `main`, for the next pip release.**
 
 - **2026-11-14** 🔌 **Unified LLM gateway and version checks** — Model providers now share one catalog and configuration layer across Agent, CLI, API and Swarm. Client settings stay isolated, native adapters respect explicit proxy settings, and cross-origin redirects are blocked before credentials or request bodies are forwarded.
   Check for new versions from Web settings. Desktop gains support for signed updates with verification and recovery; distribution requires a configured update feed and publisher certificates. **On `main`, for the next pip release.**
@@ -395,6 +404,22 @@ Vibe-Trading is part of the **[HKUDS](https://github.com/HKUDS)** agent ecosyste
 Observed-slice diagnostics use your spot price and continuously compounded risk-free rate and dividend yield to reconstruct European call model prices. They check vertical spread bounds and butterfly convexity within each observed expiry, report incomplete or unavailable coverage, and show up to 20 findings without reducing the check counts. The grid is unchanged. Use the read-only `quantlib_call` function `volatility.diagnose_iv_surface` or `POST /options/volatility-surface/diagnostics` with the same observations and decimal rates. These are model-price checks, not executable quotes or trading advice.
 
 See the [model scope and example](agent/src/skills/options-advanced/SKILL.md#volatility-surface).
+
+## Citation
+
+If you use Vibe-Trading in your research, please cite the technical report.
+
+```bibtex
+@misc{wu2026vibetradingagentnativetrading,
+  title         = {Vibe-Trading: Towards Agent-Native Trading},
+  author        = {Haozhe Wu and Zhonghang Li and Chao Huang},
+  year          = {2026},
+  eprint        = {2611.24845},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.AI},
+  url           = {https://arxiv.org/abs/2611.24845},
+}
+```
 
 ## Contributing
 

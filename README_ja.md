@@ -13,6 +13,10 @@
 </p>
 
 <p align="center">
+  <a href="https://arxiv.org/abs/2611.24845"><b>📄 技術レポートを読む</b>&nbsp; <img src="https://img.shields.io/badge/arXiv-2611.24845-B31B1B?style=flat&amp;logo=arxiv&amp;logoColor=white" alt="arXiv: 2611.24845"></a>
+</p>
+
+<p align="center">
   <a href="https://www.star-history.com/HKUDS/Vibe-Trading"><img src="https://api.star-history.com/badge?repo=HKUDS/Vibe-Trading&amp;type=trending" height="55" alt="Star History: GitHub Trending"/></a>
   <a href="https://trendshift.io/repositories/25527"><img src="https://trendshift.io/api/badge/trendshift/repositories/25527/daily" height="55" alt="Trendshift: daily ranking"/></a>
   <a href="https://www.star-history.com/HKUDS/Vibe-Trading"><img src="https://api.star-history.com/badge?repo=HKUDS/Vibe-Trading" height="55" alt="Star History: global star ranking"/></a>
@@ -62,17 +66,22 @@
 
 ## 📰 ニュース
 
+- **2026-11-19** 📄 **技術レポートを公開** — Vibe-Trading が分析結果を元データと実行記録に結び付け、研究の改訂履歴を保持し、実取引をユーザーが許可した範囲に制限する仕組みを解説しています。 [Vibe-Trading: Towards Agent-Native Trading](https://arxiv.org/abs/2611.24845)
+
+- **2026-11-18** 📈 **台湾株のバックテストと値幅制限の修正** — Yahoo Finance の日足で台湾証券取引所（`.TW`）と台北取引所（`.TWO`）の株式をバックテストできます。韓国・台湾・ベトナム株のバックテストでは、追加のスリッページを含む約定価格で日次の値幅制限を判定します。これらの市場の日中足バックテストはデータ取得前に拒否します。 [#2174](https://github.com/HKUDS/Vibe-Trading/pull/2174) · [#2175](https://github.com/HKUDS/Vibe-Trading/pull/2175)
+  表示済みのセッションを切り替えるときはサイドバーの一覧を再利用します。組み込みの AKShare スキルは新旧の API 名に対応しました。添付ファイル名、設定ファイルの探索順序、MCP 市場データのプレビューと分割ファイルの復元を回帰テストで確認します。**`main` に統合済み。次回の pip リリースに含まれます。**
+
 - **2026-11-17** 📊 **ポートフォリオのリスク詳細と再利用できるオプション分析** — Risk X-Ray に観測ドローダウン期間と保有銘柄別の符号付きボラティリティ寄与を追加。Options Lab は計算済みスナップショットを JSON、シナリオグリッドを CSV で出力し、観測 IV スライスの診断では検査範囲の限界を明示します。無裁定を保証するものではありません。Agent/MCP ツールは共通の価格・IV グリッドで名前付きの複数戦略を比較できます。
   不正な更新メタデータと更新後の検証失敗の処理、直接接続時のモデル検出、添付ファイル名、価格欠損の処理、古いセッション一覧応答を修正。**`main` に反映済みで、次回の pip リリースに含まれます。**
 
 - **2026-11-16** 🛠️ **レポート・記憶検索・メッセージ処理の修正** — Shadow Account は未計測の損益をゼロではなく取得不可として表示し、キャッシュ済みの HTML/PDF 出力でも維持します。記憶検索の旧インデックスを修復し、PDF OCR の一部失敗を品質低下として明示します。
   Signal のペアリングと、不正な画像メタデータによる Napcat のテキスト欠落を修正。Anthropic の温度設定の再試行を該当する検証エラーに限定し、AKShare の新旧の履歴データ API に対応しました。[CHANGELOG](CHANGELOG.md) を参照。**`main` に反映済みで、次回の pip リリースに含まれます。**
 
-- **2026-11-15** 📡 **統合市場データゲートウェイとすぐに使える CSV** — 過去の価格データと米国オプションのスナップショットが、データソースの切り替え、共有キャッシュ、同時実行数の制限を備えた[ローカルデータゲートウェイ](agent/src/data_gateway/README.md)を使用します。取得元、通貨、価格調整方式を保持し、取得範囲とデータの鮮度を明示します。
-  Agent の市場データ取得では JSON と CSV を提供します。銘柄と単一の `YYYY-MM-DD` 日付範囲を明示した対応リクエストは、取得前に実行時処理で日付を制約します。計算に必要なウォームアップ期間は別途指定でき、既存の指標・バックテストの参照期間は維持されます。**`main` に反映済みで、次回の pip リリースに含まれます。**
-
 <details>
 <summary>過去のニュース</summary>
+
+- **2026-11-15** 📡 **統合市場データゲートウェイとすぐに使える CSV** — 過去の価格データと米国オプションのスナップショットが、データソースの切り替え、共有キャッシュ、同時実行数の制限を備えた[ローカルデータゲートウェイ](agent/src/data_gateway/README.md)を使用します。取得元、通貨、価格調整方式を保持し、取得範囲とデータの鮮度を明示します。
+  Agent の市場データ取得では JSON と CSV を提供します。銘柄と単一の `YYYY-MM-DD` 日付範囲を明示した対応リクエストは、取得前に実行時処理で日付を制約します。計算に必要なウォームアップ期間は別途指定でき、既存の指標・バックテストの参照期間は維持されます。**`main` に反映済みで、次回の pip リリースに含まれます。**
 
 - **2026-11-14** 🔌 **LLM ゲートウェイの統合と更新確認** — Agent、CLI、API、Swarm のモデルプロバイダーを共通のカタログと設定層に統合しました。クライアントごとに設定を分離し、ネイティブアダプターは明示的なプロキシ設定に従います。認証情報やリクエスト本文を転送する前に、別オリジンへのリダイレクトをブロックします。
   Web の設定画面から新しいバージョンを確認できます。Desktop には署名付き更新の検証と復旧機能を追加しました。配信には更新フィードと発行者証明書の設定が必要です。**`main` に統合済み、次回の pip リリースに含まれます。**
@@ -378,6 +387,22 @@ Vibe-Trading は **[HKUDS](https://github.com/HKUDS)** agent ecosystem の一部
 | 模擬取引 | 口座の現金・約定・純資産を日単位で保存。別のシミュレーションで中国A株を5分刻みで再生。 | オプトインの出来高シェア約定（[#2128](https://github.com/HKUDS/Vibe-Trading/pull/2128)、ドラフト）。 |
 | 調査 | 検証指標と根拠を実行カードに記録。日付付きの調査記録は改訂履歴を保持し、検索できます。 | 調査記録への構造化された財務データ（[#2164](https://github.com/HKUDS/Vibe-Trading/pull/2164)、レビュー中）。 |
 | オプションラボ | 複数レッグの損益、感応度、原資産価格 × IV のシナリオ。 | `/options` で対話的なボラティリティ曲面グリッドを利用可能。 |
+
+## 引用
+
+研究で Vibe-Trading を利用する際は、この技術レポートを引用してください。
+
+```bibtex
+@misc{wu2026vibetradingagentnativetrading,
+  title         = {Vibe-Trading: Towards Agent-Native Trading},
+  author        = {Haozhe Wu and Zhonghang Li and Chao Huang},
+  year          = {2026},
+  eprint        = {2611.24845},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.AI},
+  url           = {https://arxiv.org/abs/2611.24845},
+}
+```
 
 ## 開発への参加
 

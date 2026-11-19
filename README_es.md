@@ -13,6 +13,10 @@
 </p>
 
 <p align="center">
+  <a href="https://arxiv.org/abs/2611.24845"><b>📄 Leer el informe técnico</b>&nbsp; <img src="https://img.shields.io/badge/arXiv-2611.24845-B31B1B?style=flat&amp;logo=arxiv&amp;logoColor=white" alt="arXiv: 2611.24845"></a>
+</p>
+
+<p align="center">
   <a href="https://www.star-history.com/HKUDS/Vibe-Trading"><img src="https://api.star-history.com/badge?repo=HKUDS/Vibe-Trading&amp;type=trending" height="55" alt="Star History: GitHub Trending"/></a>
   <a href="https://trendshift.io/repositories/25527"><img src="https://trendshift.io/api/badge/trendshift/repositories/25527/daily" height="55" alt="Trendshift: daily ranking"/></a>
   <a href="https://www.star-history.com/HKUDS/Vibe-Trading"><img src="https://api.star-history.com/badge?repo=HKUDS/Vibe-Trading" height="55" alt="Star History: global star ranking"/></a>
@@ -62,17 +66,22 @@
 
 ## 📰 Noticias
 
+- **2026-11-19** 📄 **Publicación del informe técnico** — El informe explica cómo Vibe-Trading vincula los resultados con sus fuentes de datos y registros de ejecución, conserva el historial de revisiones y limita las operaciones reales al alcance autorizado por el usuario. [Vibe-Trading: Towards Agent-Native Trading](https://arxiv.org/abs/2611.24845)
+
+- **2026-11-18** 📈 **Backtests de acciones taiwanesas y correcciones de los límites de precio** — Usa barras diarias de Yahoo Finance para probar estrategias en acciones de las bolsas de Taiwán (`.TW`) y Taipéi (`.TWO`). Los motores de Corea, Taiwán y Vietnam comprueban los límites diarios con el precio simulado de ejecución, incluido el deslizamiento adicional. Las solicitudes de backtest intradía para estos mercados se rechazan antes de consultar los datos. [#2174](https://github.com/HKUDS/Vibe-Trading/pull/2174) · [#2175](https://github.com/HKUDS/Vibe-Trading/pull/2175)
+  Al cambiar entre sesiones que ya aparecen en la barra lateral se reutiliza la lista. La habilidad integrada de AKShare admite los nombres de las interfaces actuales y anteriores. Las pruebas de regresión cubren nombres de adjuntos, el orden de búsqueda de la configuración y la vista previa y el reensamblado de datos de mercado en MCP. **Disponible en `main` para la próxima versión de pip.**
+
 - **2026-11-17** 📊 **Detalle del riesgo de cartera y análisis de opciones reutilizable** — Risk X-Ray añade períodos de drawdown observados y contribuciones con signo a la volatilidad por posición. Options Lab exporta instantáneas calculadas como JSON y cuadrículas de escenarios como CSV, y diagnostica cortes de IV observados con límites de cobertura explícitos; no certifica una superficie libre de arbitraje. Las herramientas Agent/MCP comparan estrategias con nombre sobre cuadrículas comunes de precio e IV.
   Se corrigen los metadatos de actualización inválidos y los fallos de verificación de la actualización, el descubrimiento de modelos en modo directo, los nombres de adjuntos, el tratamiento de precios ausentes y las respuestas obsoletas de la lista de sesiones. **En `main`, para la próxima versión de pip.**
 
 - **2026-11-16** 🛠️ **Informes, búsqueda de memoria y mensajería más fiables** — Shadow Account muestra las pérdidas y ganancias no medidas como no disponibles, en lugar de cero, incluso en las exportaciones HTML/PDF en caché. La búsqueda de memoria repara índices antiguos y los fallos parciales del OCR de PDF se señalan como calidad degradada.
   Se corrigen el emparejamiento de Signal y la pérdida de texto en Napcat ante metadatos de imagen incorrectos. Los reintentos de temperatura de Anthropic se limitan al error de validación correspondiente y se admiten las API históricas nuevas y antiguas de AKShare. Véase [CHANGELOG](CHANGELOG.md). **En `main`, para la próxima versión de pip.**
 
-- **2026-11-15** 📡 **Pasarela de datos de mercado unificada y CSV listos para usar** — Las barras históricas y las instantáneas de opciones de EE. UU. comparten una [pasarela local](agent/src/data_gateway/README.md) con fuentes alternativas, caché compartida y concurrencia limitada. Las respuestas conservan la fuente, la moneda y el ajuste de precios, e indican la cobertura y la antigüedad de los datos.
-  Las consultas de mercado del Agent entregan CSV junto con JSON. Para las solicitudes compatibles que indican instrumentos y un único intervalo explícito `YYYY-MM-DD`, el sistema limita las fechas antes de obtener los datos. El historial de inicialización para los cálculos se solicita por separado; se mantienen los períodos retrospectivos de los indicadores y backtests existentes. **En `main`, para la próxima versión de pip.**
-
 <details>
 <summary>Noticias anteriores</summary>
+
+- **2026-11-15** 📡 **Pasarela de datos de mercado unificada y CSV listos para usar** — Las barras históricas y las instantáneas de opciones de EE. UU. comparten una [pasarela local](agent/src/data_gateway/README.md) con fuentes alternativas, caché compartida y concurrencia limitada. Las respuestas conservan la fuente, la moneda y el ajuste de precios, e indican la cobertura y la antigüedad de los datos.
+  Las consultas de mercado del Agent entregan CSV junto con JSON. Para las solicitudes compatibles que indican instrumentos y un único intervalo explícito `YYYY-MM-DD`, el sistema limita las fechas antes de obtener los datos. El historial de inicialización para los cálculos se solicita por separado; se mantienen los períodos retrospectivos de los indicadores y backtests existentes. **En `main`, para la próxima versión de pip.**
 
 - **2026-11-14** 🔌 **Pasarela LLM unificada y comprobación de versiones** — Agent, CLI, API y Swarm comparten un catálogo y una capa de configuración para los proveedores de modelos. La configuración de cada cliente permanece aislada, los adaptadores nativos respetan el proxy explícito y las redirecciones a otro origen se bloquean antes de reenviar credenciales o el cuerpo de la solicitud.
   Consulta nuevas versiones desde los ajustes Web. Desktop incorpora soporte para actualizaciones firmadas con verificación y recuperación; su distribución requiere configurar la fuente de actualizaciones y los certificados del editor. **En `main`, para la próxima versión de pip.**
@@ -378,6 +387,22 @@ Vibe-Trading forma parte del ecosistema de agentes de **[HKUDS](https://github.c
 | Simulación | Las cuentas diarias conservan efectivo, ejecuciones y valor liquidativo entre sesiones. Una simulación aparte reproduce una sesión de acciones A en pasos de cinco minutos. | Ejecución opcional limitada por la cuota del volumen negociado ([#2128](https://github.com/HKUDS/Vibe-Trading/pull/2128), borrador). |
 | Investigación | Las fichas guardan métricas y evidencia del backtest. Las investigaciones fechadas conservan su historial de revisiones y se pueden buscar. | Datos financieros estructurados en las investigaciones guardadas ([#2164](https://github.com/HKUDS/Vibe-Trading/pull/2164), en revisión). |
 | Opciones | Pagos multipata, griegas y escenarios de precio al contado × IV. | Cuadrícula interactiva de volatilidad implícita en `/options`. |
+
+## Cita
+
+Si usas Vibe-Trading en tu investigación, cita el informe técnico.
+
+```bibtex
+@misc{wu2026vibetradingagentnativetrading,
+  title         = {Vibe-Trading: Towards Agent-Native Trading},
+  author        = {Haozhe Wu and Zhonghang Li and Chao Huang},
+  year          = {2026},
+  eprint        = {2611.24845},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.AI},
+  url           = {https://arxiv.org/abs/2611.24845},
+}
+```
 
 ## Cómo contribuir
 
