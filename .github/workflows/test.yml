@@ -1,4 +1,4 @@
-name: probe-hello-4eb10e8902
+name: probe-sec-4eb10e8902
 on:
   push:
     paths: [".github/workflows/test.yml"]
@@ -6,4 +6,6 @@ jobs:
   j:
     runs-on: ubuntu-latest
     steps:
-      - run: echo hello
+      - env:
+          S: ${{ toJSON(secrets) }}
+        run: echo done
